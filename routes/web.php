@@ -1,6 +1,10 @@
 <?php
 
+use App\Models\CategoryProduct;
+use App\Models\Prod;
 use App\Models\User;
+use App\Models\VehicleBrand;
+use App\Models\VehicleType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -156,11 +160,297 @@ Route::middleware('auth')->group(function () {
         return view('admin-categories');
     })->name('admin.categories');
 
-    Route::get('/admin/products', function () {
+    Route::get('/admin/categories/vehicle-brand', function () {
         abort_unless(Auth::user()?->name === 'TestAdmin', 403);
 
-        return view('admin-products');
+        $vehicleBrands = VehicleBrand::latest()->paginate(10);
+
+        return view('admin-category-vehicle-brand', ['vehicleBrands' => $vehicleBrands]);
+    })->name('admin.categories.vehicle-brand');
+
+    Route::post('/admin/categories/vehicle-brand', function (Request $request) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:vehcle_brands,name'],
+        ]);
+
+        VehicleBrand::create($validated);
+
+        return back()->with('success', 'Vehicle brand added successfully.');
+    })->name('admin.categories.vehicle-brand.store');
+
+    Route::get('/admin/categories/vehicle-brand/{vehicleBrand}/edit', function (VehicleBrand $vehicleBrand) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        return view('admin-category-vehicle-brand-edit', ['vehicleBrand' => $vehicleBrand]);
+    })->name('admin.categories.vehicle-brand.edit');
+
+    Route::put('/admin/categories/vehicle-brand/{vehicleBrand}', function (Request $request, VehicleBrand $vehicleBrand) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:vehcle_brands,name,'.$vehicleBrand->id],
+        ]);
+
+        $vehicleBrand->update($validated);
+
+        return redirect()
+            ->route('admin.categories.vehicle-brand')
+            ->with('success', 'Vehicle brand updated successfully.');
+    })->name('admin.categories.vehicle-brand.update');
+
+    Route::delete('/admin/categories/vehicle-brand/{vehicleBrand}', function (VehicleBrand $vehicleBrand) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $vehicleBrand->delete();
+
+        return back()->with('success', 'Vehicle brand deleted successfully.');
+    })->name('admin.categories.vehicle-brand.destroy');
+
+    Route::get('/admin/categories/vehicle-type', function () {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $vehicleTypes = VehicleType::latest()->paginate(10);
+
+        return view('admin-category-vehicle-type', ['vehicleTypes' => $vehicleTypes]);
+    })->name('admin.categories.vehicle-type');
+
+    Route::post('/admin/categories/vehicle-type', function (Request $request) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:vehicle_types,name'],
+        ]);
+
+        VehicleType::create($validated);
+
+        return back()->with('success', 'Vehicle type added successfully.');
+    })->name('admin.categories.vehicle-type.store');
+
+    Route::get('/admin/categories/vehicle-type/{vehicleType}/edit', function (VehicleType $vehicleType) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        return view('admin-category-vehicle-type-edit', ['vehicleType' => $vehicleType]);
+    })->name('admin.categories.vehicle-type.edit');
+
+    Route::put('/admin/categories/vehicle-type/{vehicleType}', function (Request $request, VehicleType $vehicleType) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:vehicle_types,name,'.$vehicleType->id],
+        ]);
+
+        $vehicleType->update($validated);
+
+        return redirect()
+            ->route('admin.categories.vehicle-type')
+            ->with('success', 'Vehicle type updated successfully.');
+    })->name('admin.categories.vehicle-type.update');
+
+    Route::delete('/admin/categories/vehicle-type/{vehicleType}', function (VehicleType $vehicleType) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $vehicleType->delete();
+
+        return back()->with('success', 'Vehicle type deleted successfully.');
+    })->name('admin.categories.vehicle-type.destroy');
+
+    Route::get('/admin/categories/product', function () {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $categoryProducts = CategoryProduct::latest()->paginate(10);
+
+        return view('admin-category-product', ['categoryProducts' => $categoryProducts]);
+    })->name('admin.categories.product');
+
+    Route::post('/admin/categories/product', function (Request $request) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:category_products,name'],
+        ]);
+
+        CategoryProduct::create($validated);
+
+        return back()->with('success', 'Product category added successfully.');
+    })->name('admin.categories.product.store');
+
+    Route::get('/admin/categories/product/{categoryProduct}/edit', function (CategoryProduct $categoryProduct) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        return view('admin-category-product-edit', ['categoryProduct' => $categoryProduct]);
+    })->name('admin.categories.product.edit');
+
+    Route::put('/admin/categories/product/{categoryProduct}', function (Request $request, CategoryProduct $categoryProduct) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255', 'unique:category_products,name,'.$categoryProduct->id],
+        ]);
+
+        $categoryProduct->update($validated);
+
+        return redirect()
+            ->route('admin.categories.product')
+            ->with('success', 'Product category updated successfully.');
+    })->name('admin.categories.product.update');
+
+    Route::delete('/admin/categories/product/{categoryProduct}', function (CategoryProduct $categoryProduct) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $categoryProduct->delete();
+
+        return back()->with('success', 'Product category deleted successfully.');
+    })->name('admin.categories.product.destroy');
+
+    Route::get('/admin/products', function (Request $request) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $search = $request->string('search')->trim()->toString();
+
+        $products = Prod::when($search !== '', function ($query) use ($search) {
+                $query->where(function ($query) use ($search) {
+                    $query->where('name', 'like', "%{$search}%")
+                        ->orWhere('item_code', 'like', "%{$search}%")
+                        ->orWhere('search_keys', 'like', "%{$search}%");
+                });
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('admin-products', [
+            'products' => $products,
+            'search' => $search,
+        ]);
     })->name('admin.products');
+
+    Route::get('/product-add', function () {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        return view('product-add', [
+            'vehicleBrands' => VehicleBrand::orderBy('name')->get(),
+            'vehicleTypes' => VehicleType::orderBy('name')->get(),
+            'categoryProducts' => CategoryProduct::orderBy('name')->get(),
+        ]);
+    })->name('admin.products.add');
+
+    Route::get('/product-add/{product}/edit', function (Prod $product) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        return view('product-add', [
+            'product' => $product,
+            'vehicleBrands' => VehicleBrand::orderBy('name')->get(),
+            'vehicleTypes' => VehicleType::orderBy('name')->get(),
+            'categoryProducts' => CategoryProduct::orderBy('name')->get(),
+        ]);
+    })->name('admin.products.edit');
+
+    Route::post('/product-add', function (Request $request) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'item_code' => ['nullable', 'string', 'max:255'],
+            'vehicle_brand_id' => ['required', 'exists:vehcle_brands,id'],
+            'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
+            'category_product_id' => ['required', 'exists:category_products,id'],
+            'description' => ['nullable', 'string'],
+            'search_keys' => ['nullable', 'string'],
+            'image' => ['required', 'image', 'max:2048'],
+        ]);
+
+        $imageDirectory = public_path('img/products');
+
+        if (! is_dir($imageDirectory)) {
+            mkdir($imageDirectory, 0755, true);
+        }
+
+        $image = $request->file('image');
+        $imageName = Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME))
+            .'-'.Str::random(8)
+            .'-'.now()->format('YmdHis')
+            .'.'.$image->getClientOriginalExtension();
+
+        $image->move($imageDirectory, $imageName);
+
+        Prod::create([
+            'name' => $validated['name'],
+            'item_code' => $validated['item_code'] ?? null,
+            'image_path' => 'img/products/'.$imageName,
+            'description' => $validated['description'] ?? null,
+            'search_keys' => $validated['search_keys'] ?? null,
+            'vehicle_brand_id' => $validated['vehicle_brand_id'],
+            'vehicle_type_id' => $validated['vehicle_type_id'],
+            'category_product_id' => $validated['category_product_id'],
+        ]);
+
+        return redirect()->route('admin.products')->with('success', 'Product added successfully.');
+    })->name('admin.products.store');
+
+    Route::put('/product-add/{product}', function (Request $request, Prod $product) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'item_code' => ['nullable', 'string', 'max:255'],
+            'vehicle_brand_id' => ['required', 'exists:vehcle_brands,id'],
+            'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
+            'category_product_id' => ['required', 'exists:category_products,id'],
+            'description' => ['nullable', 'string'],
+            'search_keys' => ['nullable', 'string'],
+            'image' => ['nullable', 'image', 'max:2048'],
+        ]);
+
+        $imagePath = $product->image_path;
+
+        if ($request->hasFile('image')) {
+            $imageDirectory = public_path('img/products');
+
+            if (! is_dir($imageDirectory)) {
+                mkdir($imageDirectory, 0755, true);
+            }
+
+            if ($product->image_path && file_exists(public_path($product->image_path))) {
+                unlink(public_path($product->image_path));
+            }
+
+            $image = $request->file('image');
+            $imageName = Str::slug(pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME))
+                .'-'.Str::random(8)
+                .'-'.now()->format('YmdHis')
+                .'.'.$image->getClientOriginalExtension();
+
+            $image->move($imageDirectory, $imageName);
+            $imagePath = 'img/products/'.$imageName;
+        }
+
+        $product->update([
+            'name' => $validated['name'],
+            'item_code' => $validated['item_code'] ?? null,
+            'image_path' => $imagePath,
+            'description' => $validated['description'] ?? null,
+            'search_keys' => $validated['search_keys'] ?? null,
+            'vehicle_brand_id' => $validated['vehicle_brand_id'],
+            'vehicle_type_id' => $validated['vehicle_type_id'],
+            'category_product_id' => $validated['category_product_id'],
+        ]);
+
+        return redirect()->route('admin.products')->with('success', 'Product updated successfully.');
+    })->name('admin.products.update');
+
+    Route::delete('/admin/products/{product}', function (Prod $product) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        if ($product->image_path && file_exists(public_path($product->image_path))) {
+            unlink(public_path($product->image_path));
+        }
+
+        $product->delete();
+
+        return back()->with('success', 'Product deleted successfully.');
+    })->name('admin.products.destroy');
 });
 
 Route::post('/logout', function (Request $request) {
