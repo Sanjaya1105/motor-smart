@@ -17,6 +17,12 @@ Route::get('/', function () {
 });
 
 Route::get('/login', function () {
+    if (Auth::check()) {
+        return Auth::user()?->name === 'TestAdmin'
+            ? redirect()->route('admin')
+            : redirect()->route('home1');
+    }
+
     return view('login');
 })->name('login');
 

@@ -25,6 +25,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 return response()->json(['message' => 'Your session has expired. Please log in again.'], 419);
             }
 
+            if (auth()->check()) {
+                return auth()->user()?->name === 'TestAdmin'
+                    ? redirect()->route('admin')->with('success', 'Your session was refreshed automatically.')
+                    : redirect()->route('home1')->with('success', 'Your session was refreshed automatically.');
+            }
+
             return redirect()
                 ->route('login')
                 ->with('error', 'Your session has expired. Please log in again.');
