@@ -75,8 +75,37 @@
             text-decoration: none;
         }
 
-        .navbar a:hover {
+        .navbar > a:not(.cart-link) {
+            position: relative;
+            padding: 9px 12px;
+            border-radius: 999px;
+            overflow: hidden;
+            transition: color 0.25s ease, transform 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .navbar > a:not(.cart-link)::after {
+            content: "";
+            position: absolute;
+            left: 14px;
+            right: 14px;
+            bottom: 5px;
+            height: 3px;
+            border-radius: 999px;
+            background: #2467FF;
+            transform: scaleX(0);
+            transform-origin: center;
+            transition: transform 0.25s ease;
+        }
+
+        .navbar > a:not(.cart-link):hover {
+            background: #fff;
             color: #2467FF;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 22px rgba(36, 103, 255, 0.22);
+        }
+
+        .navbar > a:not(.cart-link):hover::after {
+            transform: scaleX(1);
         }
 
         .user-menu {
@@ -95,6 +124,14 @@
             color: #fff;
             font-size: 18px;
             text-decoration: none;
+            transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+        }
+
+        .cart-link:hover {
+            background: #174fd4;
+            color: #fff;
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 10px 22px rgba(36, 103, 255, 0.28);
         }
 
         .cart-count {
@@ -560,10 +597,10 @@
     @endphp
 
     <nav class="navbar">
-        <a href="{{ route('home1') }}">Home Page</a>
-        <a href="{{ route('product') }}">Product Page</a>
-        <a href="{{ route('about-us') }}">About Us Page</a>
-        <a href="{{ route('contact-us') }}">Contact Us Page</a>
+        <a href="{{ route('home1') }}">Home</a>
+        <a href="{{ route('product') }}">Product</a>
+        <a href="{{ route('about-us') }}">About Us</a>
+        <a href="{{ route('contact-us') }}">Contact Us</a>
         <a href="{{ route('cart') }}" class="cart-link" aria-label="View cart">
             🛒
             <span class="cart-count">{{ $cartCount }}</span>
@@ -609,10 +646,10 @@
             <div>
                 <h3>Quick Links</h3>
                 <div class="footer-links">
-                    <a href="{{ route('home1') }}">Home Page</a>
-                    <a href="{{ route('product') }}">Product Page</a>
-                    <a href="{{ route('about-us') }}">About Us Page</a>
-                    <a href="{{ route('contact-us') }}">Contact Us Page</a>
+                    <a href="{{ route('home1') }}">Home</a>
+                    <a href="{{ route('product') }}">Product</a>
+                    <a href="{{ route('about-us') }}">About Us</a>
+                    <a href="{{ route('contact-us') }}">Contact Us</a>
                 </div>
             </div>
 
