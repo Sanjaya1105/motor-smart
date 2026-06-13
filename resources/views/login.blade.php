@@ -84,6 +84,28 @@
             box-shadow: 0 0 0 3px rgba(36, 103, 255, 0.12);
         }
 
+        .password-field {
+            position: relative;
+        }
+
+        .password-field .form-input {
+            padding-right: 74px;
+        }
+
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 8px;
+            transform: translateY(-50%);
+            padding: 7px 10px;
+            border: none;
+            border-radius: 7px;
+            background: #eef3ff;
+            color: #2467FF;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
         .login-button {
             width: 100%;
             padding: 13px;
@@ -140,19 +162,24 @@
                     name="username"
                     value="{{ old('username') }}"
                     class="form-input"
+                    autocomplete="username"
                     required
                 >
             </div>
 
             <div class="form-group">
                 <label for="password" class="form-label">Password</label>
-                <input
-                    type="text"
-                    id="password"
-                    name="password"
-                    class="form-input"
-                    required
-                >
+                <div class="password-field">
+                    <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        class="form-input"
+                        autocomplete="current-password"
+                        required
+                    >
+                    <button type="button" class="password-toggle" id="password-toggle">Show</button>
+                </div>
             </div>
 
             <button
@@ -163,5 +190,17 @@
             </button>
         </form>
     </main>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const passwordToggle = document.getElementById('password-toggle');
+
+        passwordToggle.addEventListener('click', function () {
+            const isPassword = passwordInput.type === 'password';
+
+            passwordInput.type = isPassword ? 'text' : 'password';
+            passwordToggle.textContent = isPassword ? 'Hide' : 'Show';
+        });
+    </script>
 </body>
 </html>
