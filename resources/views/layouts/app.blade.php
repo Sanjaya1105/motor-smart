@@ -286,6 +286,175 @@
             background: #b02a37;
         }
 
+        .mini-cart-order-more-button {
+            display: block;
+            width: calc(100% - 24px);
+            box-sizing: border-box;
+            margin: 0 12px 10px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #FF823B;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .mini-cart-order-more-button:hover {
+            background: #2467FF;
+        }
+
+        .mini-cart-more-panel {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 120;
+        }
+
+        .mini-cart-more-panel[hidden] {
+            display: none;
+        }
+
+        .mini-cart-more-card {
+            width: min(720px, 100%);
+            max-height: 82vh;
+            overflow: auto;
+            padding: 22px;
+            border-top: 6px solid #FF823B;
+            border-radius: 20px;
+            background: #fff;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.3);
+        }
+
+        .mini-cart-more-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .mini-cart-more-header h2 {
+            margin: 0;
+            color: #2467FF;
+            font-size: 24px;
+        }
+
+        .mini-cart-more-close {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 34px;
+            height: 34px;
+            border: none;
+            border-radius: 50%;
+            background: #eef3ff;
+            color: #2467FF;
+            cursor: pointer;
+            font-size: 24px;
+            line-height: 1;
+        }
+
+        .mini-cart-search-row {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .mini-cart-search-row input {
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid #d5dcff;
+            border-radius: 10px;
+            font: inherit;
+        }
+
+        .mini-cart-search-row button {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            background: #2467FF;
+            color: #fff;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .mini-cart-search-results {
+            display: grid;
+            gap: 8px;
+        }
+
+        .mini-cart-search-note {
+            margin: 0;
+            color: #6c757d;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .mini-cart-search-result {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 12px;
+            padding: 12px;
+            border-radius: 14px;
+            background: #f5f7ff;
+        }
+
+        .mini-cart-search-result img {
+            width: 60px;
+            height: 52px;
+            border-radius: 10px;
+            object-fit: cover;
+            background: #eef3ff;
+        }
+
+        .mini-cart-search-result h4 {
+            margin: 0 0 4px;
+            color: #222;
+            font-size: 15px;
+        }
+
+        .mini-cart-search-result span {
+            display: block;
+            margin-bottom: 8px;
+            color: #6c757d;
+            font-size: 12px;
+        }
+
+        .mini-cart-add-form {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .mini-cart-add-form input {
+            width: 58px;
+            padding: 7px;
+            border: 1px solid #d5dcff;
+            border-radius: 8px;
+            font-weight: 800;
+        }
+
+        .mini-cart-add-form button {
+            width: 30px;
+            height: 30px;
+            border: none;
+            border-radius: 50%;
+            background: #25D366;
+            color: #fff;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: 900;
+            line-height: 1;
+        }
+
         .mini-cart-link {
             display: block;
             width: calc(100% - 24px);
@@ -730,6 +899,140 @@
                 const isCollapsed = miniCartBox.classList.toggle('is-collapsed');
 
                 miniCartToggle.setAttribute('aria-expanded', String(!isCollapsed));
+            });
+        }
+
+        const orderMoreToggle = document.getElementById('order-more-toggle');
+        const orderMorePanel = document.getElementById('order-more-panel');
+        const orderMoreClose = document.getElementById('order-more-close');
+        const miniCartProductSearch = document.getElementById('mini-cart-product-search');
+        const miniCartProductSearchButton = document.getElementById('mini-cart-product-search-button');
+        const miniCartSearchResults = document.getElementById('mini-cart-search-results');
+
+        function setMiniCartSearchMessage(message) {
+            miniCartSearchResults.innerHTML = '';
+
+            const note = document.createElement('p');
+            note.className = 'mini-cart-search-note';
+            note.textContent = message;
+            miniCartSearchResults.appendChild(note);
+        }
+
+        function renderMiniCartSearchResults(products) {
+            miniCartSearchResults.innerHTML = '';
+
+            if (!products.length) {
+                setMiniCartSearchMessage('No matching products found.');
+                return;
+            }
+
+            products.forEach(function (product) {
+                const result = document.createElement('div');
+                result.className = 'mini-cart-search-result';
+
+                const image = document.createElement('img');
+                image.src = product.image_url;
+                image.alt = product.name;
+
+                const content = document.createElement('div');
+
+                const title = document.createElement('h4');
+                title.textContent = product.name;
+
+                const code = document.createElement('span');
+                code.textContent = 'Code: ' + (product.item_code || 'N/A');
+
+                const form = document.createElement('form');
+                form.className = 'mini-cart-add-form';
+                form.method = 'POST';
+                form.action = miniCartProductSearch.dataset.addUrl;
+
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = '{{ csrf_token() }}';
+
+                const productId = document.createElement('input');
+                productId.type = 'hidden';
+                productId.name = 'product_id';
+                productId.value = product.id;
+
+                const quantity = document.createElement('input');
+                quantity.type = 'number';
+                quantity.name = 'quantity';
+                quantity.value = '1';
+                quantity.min = '1';
+                quantity.required = true;
+                quantity.setAttribute('aria-label', 'Quantity for ' + product.name);
+
+                const addButton = document.createElement('button');
+                addButton.type = 'submit';
+                addButton.textContent = '+';
+                addButton.setAttribute('aria-label', 'Add ' + product.name + ' to cart');
+
+                form.append(csrf, productId, quantity, addButton);
+                content.append(title, code, form);
+                result.append(image, content);
+                miniCartSearchResults.appendChild(result);
+            });
+        }
+
+        function searchMiniCartProducts() {
+            const search = miniCartProductSearch.value.trim();
+
+            if (!search) {
+                setMiniCartSearchMessage('Type a product name, item code, or keyword.');
+                return;
+            }
+
+            setMiniCartSearchMessage('Searching products...');
+
+            fetch(miniCartProductSearch.dataset.searchUrl + '?search=' + encodeURIComponent(search), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            })
+                .then(function (response) {
+                    return response.json();
+                })
+                .then(renderMiniCartSearchResults)
+                .catch(function () {
+                    setMiniCartSearchMessage('Unable to search products. Please try again.');
+                });
+        }
+
+        function closeOrderMorePanel() {
+            orderMorePanel.hidden = true;
+            orderMoreToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        if (orderMoreToggle && orderMorePanel && orderMoreClose && miniCartProductSearch && miniCartProductSearchButton && miniCartSearchResults) {
+            orderMoreToggle.addEventListener('click', function () {
+                const isOpening = orderMorePanel.hidden;
+
+                orderMorePanel.hidden = !isOpening;
+                orderMoreToggle.setAttribute('aria-expanded', String(isOpening));
+
+                if (isOpening) {
+                    miniCartProductSearch.focus();
+                }
+            });
+
+            orderMoreClose.addEventListener('click', closeOrderMorePanel);
+
+            orderMorePanel.addEventListener('click', function (event) {
+                if (event.target === orderMorePanel) {
+                    closeOrderMorePanel();
+                }
+            });
+
+            miniCartProductSearchButton.addEventListener('click', searchMiniCartProducts);
+
+            miniCartProductSearch.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    searchMiniCartProducts();
+                }
             });
         }
     </script>

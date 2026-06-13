@@ -28,6 +28,42 @@
         @endforeach
     </div>
 
+    <button
+        type="button"
+        class="mini-cart-order-more-button"
+        id="order-more-toggle"
+        aria-expanded="false"
+        aria-controls="order-more-panel"
+    >
+        Order More Products
+    </button>
+
+    <div class="mini-cart-more-panel" id="order-more-panel" hidden>
+        <div class="mini-cart-more-card" role="dialog" aria-modal="true" aria-labelledby="order-more-title">
+            <div class="mini-cart-more-header">
+                <h2 id="order-more-title">Order More Products</h2>
+                <button type="button" class="mini-cart-more-close" id="order-more-close" aria-label="Close order more products popup">
+                    &times;
+                </button>
+            </div>
+
+            <div class="mini-cart-search-row">
+                <input
+                    type="search"
+                    id="mini-cart-product-search"
+                    placeholder="Search product, item code, keywords..."
+                    data-search-url="{{ route('cart.product-search') }}"
+                    data-add-url="{{ route('cart.add') }}"
+                >
+                <button type="button" id="mini-cart-product-search-button">Search</button>
+            </div>
+
+            <div class="mini-cart-search-results" id="mini-cart-search-results">
+                <p class="mini-cart-search-note">Search products to add more items.</p>
+            </div>
+        </div>
+    </div>
+
     <a
         href="{{ $whatsappOrderUrl }}"
         class="mini-cart-link"

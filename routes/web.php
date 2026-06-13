@@ -108,6 +108,7 @@ Route::middleware('auth')->group(function () {
 
         $product = Prod::findOrFail($validated['product_id']);
         $cart = session()->get('cart', []);
+        $isFirstCartItem = empty($cart);
         $productId = (string) $product->id;
 
         $cart[$productId] = [
@@ -120,12 +121,43 @@ Route::middleware('auth')->group(function () {
 
         session(['cart' => $cart]);
 
+        if ($isFirstCartItem) {
+            return redirect()->route('cart')->with('success', 'Product added to cart successfully.');
+        }
+
         return back()->with('success', 'Product added to cart successfully.');
     })->name('cart.add');
 
     Route::get('/cart', function () {
         return view('cart', ['cartItems' => session('cart', [])]);
     })->name('cart');
+
+    Route::get('/cart/product-search', function (Request $request) {
+        $search = trim((string) $request->query('search', ''));
+
+        if ($search === '') {
+            return response()->json([]);
+        }
+
+        $products = Prod::query()
+            ->where(function ($query) use ($search) {
+                $query
+                    ->where('name', 'like', "%{$search}%")
+                    ->orWhere('item_code', 'like', "%{$search}%")
+                    ->orWhere('search_keys', 'like', "%{$search}%");
+            })
+            ->latest()
+            ->limit(10)
+            ->get(['id', 'name', 'item_code', 'image_path'])
+            ->map(fn ($product) => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'item_code' => $product->item_code,
+                'image_url' => asset($product->image_path),
+            ]);
+
+        return response()->json($products);
+    })->name('cart.product-search');
 
     Route::post('/cart/{productId}', function (Request $request, string $productId) {
         $validated = $request->validate([
