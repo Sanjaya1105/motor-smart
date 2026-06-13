@@ -2,11 +2,12 @@
 
 use App\Models\CategoryProduct;
 use App\Models\Prod;
+use App\Models\SiteSetting;
 use App\Models\User;
 use App\Models\VehicleBrand;
 use App\Models\VehicleType;
-use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -207,6 +208,26 @@ Route::middleware('auth')->group(function () {
         return view('admin');
     })->name('admin');
 
+    Route::get('/admin/configurations', function () {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        return view('admin-configurations', [
+            'whatsappNumber' => SiteSetting::getValue('whatsapp_number', '071 796 9685'),
+        ]);
+    })->name('admin.configurations');
+
+    Route::post('/admin/configurations/whatsapp-number', function (Request $request) {
+        abort_unless(Auth::user()?->name === 'TestAdmin', 403);
+
+        $validated = $request->validate([
+            'whatsapp_number' => ['required', 'string', 'max:30', 'regex:/^[0-9+\s()-]+$/'],
+        ]);
+
+        SiteSetting::setValue('whatsapp_number', $validated['whatsapp_number']);
+
+        return back()->with('success', 'WhatsApp number updated successfully.');
+    })->name('admin.configurations.whatsapp-number.update');
+
     Route::get('/admin/users', function (Request $request) {
         abort_unless(Auth::user()?->name === 'TestAdmin', 403);
 
@@ -237,6 +258,13 @@ Route::middleware('auth')->group(function () {
             'merchant_name' => ['nullable', 'string', 'max:255'],
             'phone_number' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
+            'customer_name' => ['nullable', 'string', 'max:255'],
+            'id_number' => ['nullable', 'string', 'max:255'],
+            'br_number' => ['nullable', 'string', 'max:255'],
+            'bank' => ['nullable', 'string', 'max:255'],
+            'branch' => ['nullable', 'string', 'max:255'],
+            'account_number' => ['nullable', 'string', 'max:255'],
+            'payment_method' => ['nullable', 'in:Credit,Cash'],
             'username' => ['required', 'string', 'max:255', 'not_in:TestAdmin', 'unique:users,name'],
             'password' => ['required', 'string'],
         ]);
@@ -246,6 +274,13 @@ Route::middleware('auth')->group(function () {
             'merchant_name' => $validated['merchant_name'] ?? null,
             'phone_number' => $validated['phone_number'] ?? null,
             'address' => $validated['address'] ?? null,
+            'customer_name' => $validated['customer_name'] ?? null,
+            'id_number' => $validated['id_number'] ?? null,
+            'br_number' => $validated['br_number'] ?? null,
+            'bank' => $validated['bank'] ?? null,
+            'branch' => $validated['branch'] ?? null,
+            'account_number' => $validated['account_number'] ?? null,
+            'payment_method' => $validated['payment_method'] ?? null,
             'email' => Str::slug($validated['username']).'-'.Str::random(8).'@motor-smart.local',
             'password' => $validated['password'],
         ]);
@@ -268,6 +303,13 @@ Route::middleware('auth')->group(function () {
             'merchant_name' => ['nullable', 'string', 'max:255'],
             'phone_number' => ['nullable', 'string', 'max:255'],
             'address' => ['nullable', 'string'],
+            'customer_name' => ['nullable', 'string', 'max:255'],
+            'id_number' => ['nullable', 'string', 'max:255'],
+            'br_number' => ['nullable', 'string', 'max:255'],
+            'bank' => ['nullable', 'string', 'max:255'],
+            'branch' => ['nullable', 'string', 'max:255'],
+            'account_number' => ['nullable', 'string', 'max:255'],
+            'payment_method' => ['nullable', 'in:Credit,Cash'],
             'username' => ['required', 'string', 'max:255', 'not_in:TestAdmin', 'unique:users,name,'.$user->id],
             'password' => ['nullable', 'string'],
         ]);
@@ -276,6 +318,13 @@ Route::middleware('auth')->group(function () {
         $user->merchant_name = $validated['merchant_name'] ?? null;
         $user->phone_number = $validated['phone_number'] ?? null;
         $user->address = $validated['address'] ?? null;
+        $user->customer_name = $validated['customer_name'] ?? null;
+        $user->id_number = $validated['id_number'] ?? null;
+        $user->br_number = $validated['br_number'] ?? null;
+        $user->bank = $validated['bank'] ?? null;
+        $user->branch = $validated['branch'] ?? null;
+        $user->account_number = $validated['account_number'] ?? null;
+        $user->payment_method = $validated['payment_method'] ?? null;
 
         if (! empty($validated['password'])) {
             $user->password = $validated['password'];

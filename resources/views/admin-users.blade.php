@@ -199,6 +199,85 @@
         </div>
 
         <div style="margin-bottom: 16px;">
+            <label for="customer_name" style="display: block; margin-bottom: 8px; font-weight: 600;">Customer Name</label>
+            <input
+                type="text"
+                id="customer_name"
+                name="customer_name"
+                value="{{ old('customer_name') }}"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="id_number" style="display: block; margin-bottom: 8px; font-weight: 600;">ID Number</label>
+            <input
+                type="text"
+                id="id_number"
+                name="id_number"
+                value="{{ old('id_number') }}"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="br_number" style="display: block; margin-bottom: 8px; font-weight: 600;">BR Number</label>
+            <input
+                type="text"
+                id="br_number"
+                name="br_number"
+                value="{{ old('br_number') }}"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="bank" style="display: block; margin-bottom: 8px; font-weight: 600;">Bank</label>
+            <input
+                type="text"
+                id="bank"
+                name="bank"
+                value="{{ old('bank') }}"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="branch" style="display: block; margin-bottom: 8px; font-weight: 600;">Branch</label>
+            <input
+                type="text"
+                id="branch"
+                name="branch"
+                value="{{ old('branch') }}"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="account_number" style="display: block; margin-bottom: 8px; font-weight: 600;">Account Number</label>
+            <input
+                type="text"
+                id="account_number"
+                name="account_number"
+                value="{{ old('account_number') }}"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+        </div>
+
+        <div style="margin-bottom: 16px;">
+            <label for="payment_method" style="display: block; margin-bottom: 8px; font-weight: 600;">Payment Method</label>
+            <select
+                id="payment_method"
+                name="payment_method"
+                style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"
+            >
+                <option value="">Select payment method</option>
+                <option value="Credit" @selected(old('payment_method') === 'Credit')>Credit</option>
+                <option value="Cash" @selected(old('payment_method') === 'Cash')>Cash</option>
+            </select>
+        </div>
+
+        <div style="margin-bottom: 16px;">
             <label for="username" style="display: block; margin-bottom: 8px; font-weight: 600;">User Name</label>
             <input
                 type="text"
@@ -213,7 +292,7 @@
         <div style="margin-bottom: 24px;">
             <label for="password" style="display: block; margin-bottom: 8px; font-weight: 600;">Password</label>
             <input
-                type="password"
+                type="text"
                 id="password"
                 name="password"
                 style="width: 100%; box-sizing: border-box; padding: 10px; border: 1px solid #ccc; border-radius: 4px;"

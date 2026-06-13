@@ -64,14 +64,32 @@
         </div>
     </div>
 
-    <a
-        href="{{ $whatsappOrderUrl }}"
+    <button
+        type="button"
         class="mini-cart-link"
         id="send-order-link"
-        target="_blank"
-        rel="noopener"
         data-clear-url="{{ route('cart.clear') }}"
+        data-whatsapp-number="{{ $whatsappLinkNumber }}"
+        data-order-message="{{ $whatsappOrderMessage }}"
     >
         Send Order
-    </a>
+    </button>
+
+    <div class="send-order-payment-panel" id="send-order-payment-panel" hidden>
+        <form class="send-order-payment-card" id="send-order-payment-form">
+            <h2>Select Payment Method</h2>
+
+            <label for="send-order-payment-method">Payment Method</label>
+            <select id="send-order-payment-method" required>
+                <option value="">Select payment method</option>
+                <option value="Credit">Credit</option>
+                <option value="Cash">Cash</option>
+            </select>
+
+            <div class="send-order-payment-actions">
+                <button type="button" class="send-order-payment-cancel" id="send-order-payment-cancel">Cancel</button>
+                <button type="submit" class="send-order-payment-submit">Continue to WhatsApp</button>
+            </div>
+        </form>
+    </div>
 </aside>

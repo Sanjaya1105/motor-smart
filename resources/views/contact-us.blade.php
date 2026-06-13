@@ -245,6 +245,11 @@
         }
     </style>
 
+    @php
+        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '071 796 9685');
+        $whatsappLinkNumber = \App\Models\SiteSetting::toWhatsappNumber($whatsappNumber);
+    @endphp
+
     <main class="contact-page">
         <section class="contact-hero">
             <div>
@@ -262,7 +267,7 @@
                     <li><a href="tel:0112244445">Telephone: 011 2244445</a></li>
                     <li><a href="tel:0717969685">Mobile: 071 796 9685</a></li>
                     <li><a href="mailto:motorsmart@gmail.com">Email: motorsmart@gmail.com</a></li>
-                    <li><a href="https://wa.me/94717969685" target="_blank" rel="noopener">WhatsApp: 071 796 9685</a></li>
+                    <li><a href="https://wa.me/{{ $whatsappLinkNumber }}" target="_blank" rel="noopener">WhatsApp: {{ $whatsappNumber }}</a></li>
                     <li><span>Address: 334/C/3, Batagama South, Kandana</span></li>
                 </ul>
             </div>
@@ -288,7 +293,7 @@
                 <article class="contact-card">
                     <span class="contact-icon">W</span>
                     <h3>WhatsApp Orders</h3>
-                    <p><a href="https://wa.me/94717969685" target="_blank" rel="noopener">Message us on WhatsApp</a></p>
+                    <p><a href="https://wa.me/{{ $whatsappLinkNumber }}" target="_blank" rel="noopener">Message us on WhatsApp</a></p>
                     <p>Send cart orders, item codes, and quantities directly.</p>
                 </article>
 
@@ -323,7 +328,7 @@
                 </p>
                 <div class="contact-actions">
                     <a href="{{ route('product') }}" class="contact-action-button">Browse Products</a>
-                    <a href="https://wa.me/94717969685" target="_blank" rel="noopener" class="contact-action-button secondary">Open WhatsApp</a>
+                    <a href="https://wa.me/{{ $whatsappLinkNumber }}" target="_blank" rel="noopener" class="contact-action-button secondary">Open WhatsApp</a>
                 </div>
                 <div class="contact-note">
                     Tip: Include item codes when asking about product availability.

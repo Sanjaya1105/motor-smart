@@ -476,6 +476,76 @@
             background: #1da851;
         }
 
+        .send-order-payment-panel {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 130;
+        }
+
+        .send-order-payment-panel[hidden] {
+            display: none;
+        }
+
+        .send-order-payment-card {
+            width: min(420px, 100%);
+            padding: 24px;
+            border-top: 6px solid #FF823B;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 28px 70px rgba(0, 0, 0, 0.3);
+        }
+
+        .send-order-payment-card h2 {
+            margin: 0 0 18px;
+            color: #2467FF;
+        }
+
+        .send-order-payment-card label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 800;
+        }
+
+        .send-order-payment-card select {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 12px;
+            border: 1px solid #d5dcff;
+            border-radius: 10px;
+            font: inherit;
+        }
+
+        .send-order-payment-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .send-order-payment-cancel,
+        .send-order-payment-submit {
+            padding: 11px 14px;
+            border: none;
+            border-radius: 9px;
+            cursor: pointer;
+            font-weight: 800;
+        }
+
+        .send-order-payment-cancel {
+            background: #eef3ff;
+            color: #2467FF;
+        }
+
+        .send-order-payment-submit {
+            background: #25D366;
+            color: #fff;
+        }
+
         .user-menu-button {
             display: flex;
             align-items: center;
@@ -746,6 +816,8 @@
         $cartItems = session('cart', []);
         $cartCount = array_sum(array_column($cartItems, 'quantity'));
         $showMiniCartBeforeContent = request()->routeIs('product');
+        $whatsappNumber = \App\Models\SiteSetting::getValue('whatsapp_number', '071 796 9685');
+        $whatsappLinkNumber = \App\Models\SiteSetting::toWhatsappNumber($whatsappNumber);
         $loggedUser = auth()->user();
         $orderLines = [
             'Merchant name: ' . ($loggedUser?->merchant_name ?: $loggedUser?->name ?: 'Not provided')
@@ -762,7 +834,7 @@
             $orderLines[] = '';
         }
 
-        $whatsappOrderUrl = 'https://wa.me/94717969685?text=' . rawurlencode(implode("\n", $orderLines));
+        $whatsappOrderMessage = implode("\n", $orderLines);
     @endphp
 
     <nav class="navbar">
@@ -826,7 +898,7 @@
                 <h3>Contact</h3>
                 <p>Telephone: 011 2244445 / 071 796 9685</p>
                 <p>Email: motorsmart@gmail.com</p>
-                <p>WhatsApp: 071 796 9685</p>
+                <p>WhatsApp: {{ $whatsappNumber }}</p>
             </div>
 
             <div>
@@ -841,7 +913,7 @@
     </footer>
 
     <a
-        href="https://wa.me/94717969685"
+        href="https://wa.me/{{ $whatsappLinkNumber }}"
         class="whatsapp-float"
         target="_blank"
         rel="noopener"
@@ -867,27 +939,73 @@
         });
 
         const sendOrderLink = document.getElementById('send-order-link');
+        const sendOrderPaymentPanel = document.getElementById('send-order-payment-panel');
+        const sendOrderPaymentForm = document.getElementById('send-order-payment-form');
+        const sendOrderPaymentMethod = document.getElementById('send-order-payment-method');
+        const sendOrderPaymentCancel = document.getElementById('send-order-payment-cancel');
 
-        if (sendOrderLink) {
-            sendOrderLink.addEventListener('click', function () {
-                fetch(sendOrderLink.dataset.clearUrl, {
-                    method: 'POST',
-                    keepalive: true,
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                }).then(function () {
-                    const miniCartBox = document.querySelector('.mini-cart-box');
+        function clearCartAfterSend() {
+            if (!sendOrderLink) {
+                return;
+            }
 
-                    if (miniCartBox) {
-                        miniCartBox.remove();
-                    }
+            fetch(sendOrderLink.dataset.clearUrl, {
+                method: 'POST',
+                keepalive: true,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            }).then(function () {
+                const miniCartBox = document.querySelector('.mini-cart-box');
 
-                    document.querySelectorAll('.cart-count').forEach(function (cartCount) {
-                        cartCount.textContent = '0';
-                    });
+                if (miniCartBox) {
+                    miniCartBox.remove();
+                }
+
+                document.querySelectorAll('.cart-count').forEach(function (cartCount) {
+                    cartCount.textContent = '0';
                 });
+            });
+        }
+
+        function closePaymentMethodPanel() {
+            sendOrderPaymentPanel.hidden = true;
+            sendOrderPaymentMethod.value = '';
+        }
+
+        if (sendOrderLink && sendOrderPaymentPanel && sendOrderPaymentForm && sendOrderPaymentMethod && sendOrderPaymentCancel) {
+            sendOrderLink.addEventListener('click', function () {
+                sendOrderPaymentPanel.hidden = false;
+                sendOrderPaymentMethod.focus();
+            });
+
+            sendOrderPaymentCancel.addEventListener('click', closePaymentMethodPanel);
+
+            sendOrderPaymentPanel.addEventListener('click', function (event) {
+                if (event.target === sendOrderPaymentPanel) {
+                    closePaymentMethodPanel();
+                }
+            });
+
+            sendOrderPaymentForm.addEventListener('submit', function (event) {
+                event.preventDefault();
+
+                const paymentMethod = sendOrderPaymentMethod.value;
+
+                if (!paymentMethod) {
+                    sendOrderPaymentMethod.focus();
+                    return;
+                }
+
+                const orderMessage = sendOrderLink.dataset.orderMessage
+                    + '\nPayment Method - ' + paymentMethod;
+                const whatsappUrl = 'https://wa.me/' + sendOrderLink.dataset.whatsappNumber
+                    + '?text=' + encodeURIComponent(orderMessage);
+
+                window.open(whatsappUrl, '_blank', 'noopener');
+                clearCartAfterSend();
+                closePaymentMethodPanel();
             });
         }
 

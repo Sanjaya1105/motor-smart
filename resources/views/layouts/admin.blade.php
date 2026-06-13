@@ -230,6 +230,7 @@
                 <a href="{{ route('admin.users') }}" class="admin-nav-link">Users</a>
                 <a href="{{ route('admin.categories') }}" class="admin-nav-link">Categories</a>
                 <a href="{{ route('admin.products') }}" class="admin-nav-link">Products</a>
+                <a href="{{ route('admin.configurations') }}" class="admin-nav-link">Configurations</a>
             </nav>
 
             <form method="POST" action="{{ route('logout') }}" class="logout-form">
