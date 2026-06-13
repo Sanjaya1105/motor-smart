@@ -24,7 +24,7 @@ Route::post('/login', function (Request $request) {
         'password' => ['required', 'string'],
     ]);
 
-    if (Auth::attempt(['name' => $credentials['username'], 'password' => $credentials['password']])) {
+    if (Auth::attempt(['name' => $credentials['username'], 'password' => $credentials['password']], true)) {
         $request->session()->regenerate();
 
         if ($credentials['username'] === 'TestAdmin') {
@@ -45,8 +45,75 @@ Route::middleware('auth')->group(function () {
     })->name('home1');
 
     Route::get('/product', function () {
-        return view('product');
+        $products = Prod::with(['vehicleBrand', 'vehicleType', 'categoryProduct'])
+            ->latest()
+            ->paginate(12);
+
+        return view('product', ['products' => $products]);
     })->name('product');
+
+    Route::get('/product/{product}', function (Prod $product) {
+        $product->load(['vehicleBrand', 'vehicleType', 'categoryProduct']);
+
+        return view('product-details', ['product' => $product]);
+    })->name('product.details');
+
+    Route::post('/cart', function (Request $request) {
+        $validated = $request->validate([
+            'product_id' => ['required', 'exists:prod,id'],
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $product = Prod::findOrFail($validated['product_id']);
+        $cart = session()->get('cart', []);
+        $productId = (string) $product->id;
+
+        $cart[$productId] = [
+            'product_id' => $product->id,
+            'name' => $product->name,
+            'item_code' => $product->item_code,
+            'image_path' => $product->image_path,
+            'quantity' => ($cart[$productId]['quantity'] ?? 0) + $validated['quantity'],
+        ];
+
+        session(['cart' => $cart]);
+
+        return back()->with('success', 'Product added to cart successfully.');
+    })->name('cart.add');
+
+    Route::get('/cart', function () {
+        return view('cart', ['cartItems' => session('cart', [])]);
+    })->name('cart');
+
+    Route::post('/cart/{productId}', function (Request $request, string $productId) {
+        $validated = $request->validate([
+            'quantity' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $cart = session()->get('cart', []);
+
+        if (isset($cart[$productId])) {
+            $cart[$productId]['quantity'] = $validated['quantity'];
+            session(['cart' => $cart]);
+        }
+
+        return back()->with('success', 'Cart updated successfully.');
+    })->whereNumber('productId')->name('cart.update');
+
+    Route::delete('/cart/{productId}', function (string $productId) {
+        $cart = session()->get('cart', []);
+
+        unset($cart[$productId]);
+        session(['cart' => $cart]);
+
+        return back()->with('success', 'Product removed from cart.');
+    })->whereNumber('productId')->name('cart.remove');
+
+    Route::post('/cart/clear', function () {
+        session()->forget('cart');
+
+        return response()->noContent();
+    })->name('cart.clear');
 
     Route::get('/about-us', function () {
         return view('about-us');

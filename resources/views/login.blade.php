@@ -128,6 +128,10 @@
                 <p class="error-message">{{ $errors->first() }}</p>
             @endif
 
+            @if (session('error'))
+                <p class="error-message">{{ session('error') }}</p>
+            @endif
+
             <div class="form-group">
                 <label for="username" class="form-label">User Name</label>
                 <input

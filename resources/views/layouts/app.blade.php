@@ -83,6 +83,193 @@
             position: relative;
         }
 
+        .cart-link {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #2467FF;
+            color: #fff;
+            font-size: 18px;
+            text-decoration: none;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 5px;
+            border-radius: 999px;
+            background: #fff;
+            color: #2467FF;
+            font-size: 12px;
+            font-weight: 900;
+            line-height: 20px;
+            text-align: center;
+        }
+
+        .mini-cart-box {
+            position: fixed;
+            top: 210px;
+            right: 18px;
+            width: 280px;
+            max-height: 360px;
+            overflow: auto;
+            border-top: 5px solid #FF823B;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 18px 45px rgba(36, 103, 255, 0.2);
+            z-index: 45;
+        }
+
+        .mini-cart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 100%;
+            gap: 12px;
+            padding: 14px 16px;
+            border: none;
+            background: #eef3ff;
+            cursor: pointer;
+            font: inherit;
+            text-align: left;
+        }
+
+        .mini-cart-header strong {
+            color: #2467FF;
+        }
+
+        .mini-cart-header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .mini-cart-toggle-icon {
+            display: inline-block;
+            color: #2467FF;
+            font-size: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .mini-cart-box.is-collapsed .mini-cart-items {
+            display: none;
+        }
+
+        .mini-cart-box.is-collapsed .mini-cart-toggle-icon {
+            transform: rotate(-90deg);
+        }
+
+        .mini-cart-total {
+            padding: 4px 9px;
+            border-radius: 999px;
+            background: #FF823B;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .mini-cart-items {
+            display: grid;
+            gap: 8px;
+            padding: 12px;
+        }
+
+        .mini-cart-item {
+            display: grid;
+            grid-template-columns: 44px 1fr auto auto;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #eef3ff;
+        }
+
+        .mini-cart-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .mini-cart-item img {
+            width: 44px;
+            height: 38px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #eef3ff;
+        }
+
+        .mini-cart-item-name {
+            display: block;
+            color: #222;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .mini-cart-item-code {
+            display: block;
+            color: #6c757d;
+            font-size: 11px;
+            margin-top: 3px;
+        }
+
+        .mini-cart-qty {
+            padding: 4px 8px;
+            border-radius: 999px;
+            background: #fff1e9;
+            color: #FF823B;
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .mini-cart-remove-form {
+            margin: 0;
+        }
+
+        .mini-cart-delete-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border: none;
+            border-radius: 50%;
+            background: #dc3545;
+            color: #fff;
+            cursor: pointer;
+            font-size: 15px;
+            line-height: 1;
+        }
+
+        .mini-cart-delete-button:hover {
+            background: #b02a37;
+        }
+
+        .mini-cart-link {
+            display: block;
+            width: calc(100% - 24px);
+            box-sizing: border-box;
+            margin: 0 12px 12px;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            background: #25D366;
+            color: #fff;
+            cursor: pointer;
+            font: inherit;
+            font-weight: 800;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .mini-cart-link:hover {
+            background: #1da851;
+        }
+
         .user-menu-button {
             display: flex;
             align-items: center;
@@ -282,6 +469,13 @@
                 transform: translateX(50%);
             }
 
+            .mini-cart-box {
+                position: static;
+                width: auto;
+                max-height: none;
+                margin: 16px;
+            }
+
             .site-footer {
                 padding: 38px 18px 18px;
             }
@@ -341,11 +535,38 @@
         <div class="top-header-spacer"></div>
     </header>
 
+    @php
+        $cartItems = session('cart', []);
+        $cartCount = array_sum(array_column($cartItems, 'quantity'));
+        $showMiniCartBeforeContent = request()->routeIs('product');
+        $loggedUser = auth()->user();
+        $orderLines = [
+            'Merchant name: ' . ($loggedUser?->merchant_name ?: $loggedUser?->name ?: 'Not provided')
+                . ' | Phone: ' . ($loggedUser?->phone_number ?: 'Not provided')
+                . ' | Address: ' . ($loggedUser?->address ?: 'Not provided'),
+            '',
+        ];
+
+        foreach (array_values($cartItems) as $index => $cartItem) {
+            $orderLines[] = '**PRODUCT ' . str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT)
+                . '** ' . ($cartItem['name'] ?? 'Product')
+                . ' | Item code: ' . ($cartItem['item_code'] ?? 'N/A');
+            $orderLines[] = 'quantity - ' . ($cartItem['quantity'] ?? 0);
+            $orderLines[] = '';
+        }
+
+        $whatsappOrderUrl = 'https://wa.me/94701014000?text=' . rawurlencode(implode("\n", $orderLines));
+    @endphp
+
     <nav class="navbar">
         <a href="{{ route('home1') }}">Home Page</a>
         <a href="{{ route('product') }}">Product Page</a>
         <a href="{{ route('about-us') }}">About Us Page</a>
         <a href="{{ route('contact-us') }}">Contact Us Page</a>
+        <a href="{{ route('cart') }}" class="cart-link" aria-label="View cart">
+            🛒
+            <span class="cart-count">{{ $cartCount }}</span>
+        </a>
         <div class="user-menu">
             <button type="button" class="user-menu-button" id="user-menu-button" aria-label="Open user menu">
                 &#128100;
@@ -362,7 +583,15 @@
         </div>
     </nav>
 
+    @if ($cartCount > 0 && $showMiniCartBeforeContent)
+        @include('partials.mini-cart-summary')
+    @endif
+
     @yield('content')
+
+    @if ($cartCount > 0 && ! $showMiniCartBeforeContent)
+        @include('partials.mini-cart-summary')
+    @endif
 
     <footer class="site-footer">
         <div class="footer-grid">
@@ -429,6 +658,42 @@
                 userDropdown.classList.remove('show');
             }
         });
+
+        const sendOrderLink = document.getElementById('send-order-link');
+
+        if (sendOrderLink) {
+            sendOrderLink.addEventListener('click', function () {
+                fetch(sendOrderLink.dataset.clearUrl, {
+                    method: 'POST',
+                    keepalive: true,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                }).then(function () {
+                    const miniCartBox = document.querySelector('.mini-cart-box');
+
+                    if (miniCartBox) {
+                        miniCartBox.remove();
+                    }
+
+                    document.querySelectorAll('.cart-count').forEach(function (cartCount) {
+                        cartCount.textContent = '0';
+                    });
+                });
+            });
+        }
+
+        const miniCartBox = document.querySelector('.mini-cart-box');
+        const miniCartToggle = document.getElementById('mini-cart-toggle');
+
+        if (miniCartBox && miniCartToggle) {
+            miniCartToggle.addEventListener('click', function () {
+                const isCollapsed = miniCartBox.classList.toggle('is-collapsed');
+
+                miniCartToggle.setAttribute('aria-expanded', String(!isCollapsed));
+            });
+        }
     </script>
 </body>
 </html>
