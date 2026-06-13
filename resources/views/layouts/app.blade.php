@@ -550,8 +550,8 @@
 </head>
 <body>
     <div class="contact-bar">
-        <span>Telephone: +94 70 101 4000</span>
-        <span>Email: lankaspareparts.lk@gmail.com</span>
+        <span>Telephone: 011 2244445 / 071 796 9685</span>
+        <span>Email: motorsmart@gmail.com</span>
     </div>
 
     <header class="top-header">
@@ -593,7 +593,7 @@
             $orderLines[] = '';
         }
 
-        $whatsappOrderUrl = 'https://wa.me/94701014000?text=' . rawurlencode(implode("\n", $orderLines));
+        $whatsappOrderUrl = 'https://wa.me/94717969685?text=' . rawurlencode(implode("\n", $orderLines));
     @endphp
 
     <nav class="navbar">
@@ -655,9 +655,9 @@
 
             <div>
                 <h3>Contact</h3>
-                <p>Telephone: +94 70 101 4000</p>
-                <p>Email: lankaspareparts.lk@gmail.com</p>
-                <p>WhatsApp: 070 101 4000</p>
+                <p>Telephone: 011 2244445 / 071 796 9685</p>
+                <p>Email: motorsmart@gmail.com</p>
+                <p>WhatsApp: 071 796 9685</p>
             </div>
 
             <div>
@@ -672,7 +672,7 @@
     </footer>
 
     <a
-        href="https://wa.me/94701014000"
+        href="https://wa.me/94717969685"
         class="whatsapp-float"
         target="_blank"
         rel="noopener"

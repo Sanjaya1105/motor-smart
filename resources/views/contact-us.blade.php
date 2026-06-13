@@ -259,9 +259,10 @@
             <div class="contact-quick-card">
                 <h2>Quick Contact</h2>
                 <ul class="contact-quick-list">
-                    <li><a href="tel:+94701014000">Telephone: +94 70 101 4000</a></li>
-                    <li><a href="mailto:lankaspareparts.lk@gmail.com">Email: lankaspareparts.lk@gmail.com</a></li>
-                    <li><a href="https://wa.me/94701014000" target="_blank" rel="noopener">WhatsApp: 070 101 4000</a></li>
+                    <li><a href="tel:0112244445">Telephone: 011 2244445</a></li>
+                    <li><a href="tel:0717969685">Mobile: 071 796 9685</a></li>
+                    <li><a href="mailto:motorsmart@gmail.com">Email: motorsmart@gmail.com</a></li>
+                    <li><a href="https://wa.me/94717969685" target="_blank" rel="noopener">WhatsApp: 071 796 9685</a></li>
                     <li><span>Address: 334/C/3, Batagama South, Kandana</span></li>
                 </ul>
             </div>
@@ -279,21 +280,22 @@
                 <article class="contact-card">
                     <span class="contact-icon">P</span>
                     <h3>Phone Support</h3>
-                    <p><a href="tel:+94701014000">+94 70 101 4000</a></p>
+                    <p><a href="tel:0112244445">011 2244445</a></p>
+                    <p><a href="tel:0717969685">071 796 9685</a></p>
                     <p>Best for urgent product or quantity confirmation.</p>
                 </article>
 
                 <article class="contact-card">
                     <span class="contact-icon">W</span>
                     <h3>WhatsApp Orders</h3>
-                    <p><a href="https://wa.me/94701014000" target="_blank" rel="noopener">Message us on WhatsApp</a></p>
+                    <p><a href="https://wa.me/94717969685" target="_blank" rel="noopener">Message us on WhatsApp</a></p>
                     <p>Send cart orders, item codes, and quantities directly.</p>
                 </article>
 
                 <article class="contact-card">
                     <span class="contact-icon">E</span>
                     <h3>Email Inquiries</h3>
-                    <p><a href="mailto:lankaspareparts.lk@gmail.com">lankaspareparts.lk@gmail.com</a></p>
+                    <p><a href="mailto:motorsmart@gmail.com">motorsmart@gmail.com</a></p>
                     <p>Useful for longer product requests and order notes.</p>
                 </article>
             </div>
@@ -321,7 +323,7 @@
                 </p>
                 <div class="contact-actions">
                     <a href="{{ route('product') }}" class="contact-action-button">Browse Products</a>
-                    <a href="https://wa.me/94701014000" target="_blank" rel="noopener" class="contact-action-button secondary">Open WhatsApp</a>
+                    <a href="https://wa.me/94717969685" target="_blank" rel="noopener" class="contact-action-button secondary">Open WhatsApp</a>
                 </div>
                 <div class="contact-note">
                     Tip: Include item codes when asking about product availability.

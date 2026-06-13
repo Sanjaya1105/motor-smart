@@ -7,27 +7,6 @@
             background: #f5f7ff;
         }
 
-        .products-hero {
-            margin-bottom: 32px;
-            padding: 34px;
-            border-radius: 24px;
-            background: linear-gradient(135deg, #2467FF, #174fd4);
-            color: #fff;
-            box-shadow: 0 18px 45px rgba(36, 103, 255, 0.18);
-        }
-
-        .products-hero h1 {
-            margin: 0 0 10px;
-            font-size: clamp(32px, 4vw, 48px);
-        }
-
-        .products-hero p {
-            max-width: 720px;
-            margin: 0;
-            color: rgba(255, 255, 255, 0.88);
-            line-height: 1.7;
-        }
-
         .user-product-list {
             display: flex;
             flex-direction: column;
@@ -262,6 +241,12 @@
             color: #2467FF;
         }
 
+        .product-page-title {
+            margin: 0 0 18px;
+            color: #2467FF;
+            font-size: clamp(30px, 4vw, 44px);
+        }
+
         .search-result-note {
             margin: 0 0 18px;
             padding: 14px 16px;
@@ -282,10 +267,6 @@
         @media (max-width: 640px) {
             .user-products-page {
                 padding: 36px 16px;
-            }
-
-            .products-hero {
-                padding: 24px;
             }
 
             .user-product-card {
@@ -313,10 +294,7 @@
             <p style="color: #198754; font-weight: 800;">{{ session('success') }}</p>
         @endif
 
-        <section class="products-hero">
-            <h1>Products</h1>
-            <p>Browse products added by the admin for wholesale customers. Use item codes and categories to identify the right spare parts for your business orders.</p>
-        </section>
+        <h1 class="product-page-title">Products</h1>
 
         <form class="product-page-search" action="{{ route('product') }}" method="GET">
             <input
