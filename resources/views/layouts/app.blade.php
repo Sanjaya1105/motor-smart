@@ -522,12 +522,13 @@
             <img src="{{ asset('img/logo_motorSmart.png') }}" alt="Motor Smart logo">
         </a>
 
-        <form class="search-form" action="#" method="GET">
+        <form class="search-form" action="{{ route('product') }}" method="GET">
             <input
                 type="search"
                 name="search"
                 class="search-input"
-                placeholder="Search here..."
+                value="{{ request('search') }}"
+                placeholder="Search products, item codes, keywords..."
             >
             <button type="submit" class="search-button">Search</button>
         </form>

@@ -5,6 +5,7 @@ use App\Models\Prod;
 use App\Models\User;
 use App\Models\VehicleBrand;
 use App\Models\VehicleType;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -44,12 +45,53 @@ Route::middleware('auth')->group(function () {
         return view('home1');
     })->name('home1');
 
-    Route::get('/product', function () {
-        $products = Prod::with(['vehicleBrand', 'vehicleType', 'categoryProduct'])
-            ->latest()
-            ->paginate(12);
+    Route::get('/product', function (Request $request) {
+        $search = trim((string) $request->query('search', ''));
+        $perPage = 10;
 
-        return view('product', ['products' => $products]);
+        if ($search !== '') {
+            $products = Prod::with(['vehicleBrand', 'vehicleType', 'categoryProduct'])
+                ->where(function ($query) use ($search) {
+                    $query
+                        ->where('name', 'like', "%{$search}%")
+                        ->orWhere('item_code', 'like', "%{$search}%")
+                        ->orWhere('search_keys', 'like', "%{$search}%");
+                })
+                ->latest()
+                ->paginate($perPage)
+                ->withQueryString();
+        } else {
+            if (! $request->query->has('page') || ! $request->session()->has('product_random_ids')) {
+                $request->session()->put(
+                    'product_random_ids',
+                    Prod::query()->inRandomOrder()->limit(20)->pluck('id')->all()
+                );
+            }
+
+            $randomProductIds = $request->session()->get('product_random_ids', []);
+            $randomProducts = Prod::with(['vehicleBrand', 'vehicleType', 'categoryProduct'])
+                ->whereIn('id', $randomProductIds)
+                ->get()
+                ->sortBy(fn ($product) => array_search($product->id, $randomProductIds, true))
+                ->values();
+
+            $currentPage = LengthAwarePaginator::resolveCurrentPage();
+            $products = new LengthAwarePaginator(
+                $randomProducts->forPage($currentPage, $perPage)->values(),
+                $randomProducts->count(),
+                $perPage,
+                $currentPage,
+                [
+                    'path' => route('product'),
+                    'query' => $request->query(),
+                ]
+            );
+        }
+
+        return view('product', [
+            'products' => $products,
+            'search' => $search,
+        ]);
     })->name('product');
 
     Route::get('/product/{product}', function (Prod $product) {

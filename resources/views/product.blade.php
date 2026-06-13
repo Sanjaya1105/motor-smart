@@ -222,6 +222,63 @@
             color: #adb5bd;
         }
 
+        .product-page-search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            padding: 16px;
+            border-radius: 16px;
+            background: #fff;
+            box-shadow: 0 10px 24px rgba(36, 103, 255, 0.08);
+        }
+
+        .product-page-search input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 14px;
+            border: 1px solid #d5dcff;
+            border-radius: 10px;
+            font: inherit;
+        }
+
+        .product-page-search button,
+        .product-page-search a {
+            padding: 12px 16px;
+            border: none;
+            border-radius: 10px;
+            font: inherit;
+            font-weight: 800;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .product-page-search button {
+            background: #2467FF;
+            color: #fff;
+        }
+
+        .product-page-search a {
+            background: #eef3ff;
+            color: #2467FF;
+        }
+
+        .search-result-note {
+            margin: 0 0 18px;
+            padding: 14px 16px;
+            border-left: 5px solid #FF823B;
+            border-radius: 12px;
+            background: #fff;
+            color: #2467FF;
+            font-weight: 800;
+            box-shadow: 0 10px 24px rgba(36, 103, 255, 0.08);
+        }
+
+        .search-result-note a {
+            color: #FF823B;
+            font-weight: 900;
+            text-decoration: none;
+        }
+
         @media (max-width: 640px) {
             .user-products-page {
                 padding: 36px 16px;
@@ -244,6 +301,10 @@
                 justify-self: start;
                 justify-content: flex-start;
             }
+
+            .product-page-search {
+                flex-direction: column;
+            }
         }
     </style>
 
@@ -256,6 +317,26 @@
             <h1>Products</h1>
             <p>Browse products added by the admin for wholesale customers. Use item codes and categories to identify the right spare parts for your business orders.</p>
         </section>
+
+        <form class="product-page-search" action="{{ route('product') }}" method="GET">
+            <input
+                type="search"
+                name="search"
+                value="{{ $search }}"
+                placeholder="Search by product name, item code, or keywords..."
+            >
+            <button type="submit">Search</button>
+            @if ($search !== '')
+                <a href="{{ route('product') }}">Clear</a>
+            @endif
+        </form>
+
+        @if ($search !== '')
+            <p class="search-result-note">
+                Showing products for "{{ $search }}".
+                <a href="{{ route('product') }}">Clear search</a>
+            </p>
+        @endif
 
         <section class="user-product-list">
             @forelse ($products as $product)
@@ -280,7 +361,9 @@
                     </div>
                 </article>
             @empty
-                <p style="padding: 18px; border-radius: 10px; background: #fff; color: #6c757d;">No products available yet.</p>
+                <p style="padding: 18px; border-radius: 10px; background: #fff; color: #6c757d;">
+                    {{ $search !== '' ? 'No products matched your search.' : 'No products available yet.' }}
+                </p>
             @endforelse
         </section>
 
