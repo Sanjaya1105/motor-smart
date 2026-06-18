@@ -12,7 +12,7 @@
 
         .product-list-item {
             display: grid;
-            grid-template-columns: 90px 1fr auto;
+            grid-template-columns: 90px 1fr minmax(380px, 1.3fr) auto;
             align-items: center;
             gap: 18px;
             padding: 16px;
@@ -45,6 +45,61 @@
             color: #2467FF;
             font-size: 12px;
             font-weight: 800;
+        }
+
+        .product-list-pricing {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px 16px;
+            min-width: 0;
+            padding: 12px 16px;
+            border-radius: 10px;
+            background: #f8faff;
+            font-size: 13px;
+            white-space: nowrap;
+        }
+
+        .product-list-pricing-item {
+            display: inline-flex;
+            align-items: baseline;
+            gap: 6px;
+        }
+
+        .product-list-pricing-item span {
+            color: #6c757d;
+            font-size: 11px;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .product-list-pricing-item strong {
+            color: #222;
+            font-size: 14px;
+        }
+
+        .product-list-pricing-divider {
+            color: #d5dcff;
+            font-weight: 800;
+        }
+
+        .product-list-pricing .price-original {
+            color: #9aa3b2;
+            text-decoration: line-through;
+        }
+
+        .product-list-pricing .price-discounted {
+            color: #FF823B;
+        }
+
+        .product-list-pricing .price-discount-rate {
+            color: #2467FF;
+        }
+
+        .product-list-pricing-empty {
+            color: #adb5bd;
+            font-size: 13px;
+            font-weight: 700;
         }
 
         .product-actions {
@@ -150,6 +205,10 @@
                 grid-template-columns: 1fr;
             }
 
+            .product-list-pricing {
+                white-space: normal;
+            }
+
             .product-list-image {
                 width: 100%;
                 height: 180px;
@@ -193,6 +252,39 @@
                 <div>
                     <h2 class="product-list-name">{{ $product->name }}</h2>
                     <span class="product-list-code">Code: {{ $product->item_code ?? 'N/A' }}</span>
+                </div>
+
+                <div class="product-list-pricing">
+                    @if ($product->unit_price !== null)
+                        <div class="product-list-pricing-item">
+                            <span>Unit</span>
+                            <strong class="{{ $product->hasActiveDiscount() ? 'price-original' : '' }}">
+                                Rs. {{ number_format($product->unit_price, 2) }}
+                            </strong>
+                        </div>
+
+                        <span class="product-list-pricing-divider">|</span>
+
+                        <div class="product-list-pricing-item">
+                            <span>Discount</span>
+                            <strong class="{{ $product->hasActiveDiscount() ? 'price-discounted' : '' }}">
+                                Rs. {{ number_format($product->discountedPrice(), 2) }}
+                            </strong>
+                        </div>
+
+                        <span class="product-list-pricing-divider">|</span>
+
+                        <div class="product-list-pricing-item">
+                            <span>%</span>
+                            <strong class="price-discount-rate">
+                                {{ ($product->discount_percentage ?? 0) > 0
+                                    ? rtrim(rtrim(number_format($product->discount_percentage, 2, '.', ''), '0'), '.') . '%'
+                                    : '0%' }}
+                            </strong>
+                        </div>
+                    @else
+                        <p class="product-list-pricing-empty">No price set</p>
+                    @endif
                 </div>
 
                 <div class="product-actions">

@@ -43,6 +43,42 @@
             font-weight: 900;
         }
 
+        .product-price-row {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .product-price-original {
+            color: #9aa3b2;
+            font-size: 22px;
+            font-weight: 700;
+            text-decoration: line-through;
+        }
+
+        .product-price-current {
+            color: #FF823B;
+            font-size: 34px;
+            font-weight: 900;
+        }
+
+        .product-price-single {
+            color: #2467FF;
+            font-size: 34px;
+            font-weight: 900;
+        }
+
+        .product-price-badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #ffe8dc;
+            color: #FF823B;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
         .detail-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -204,6 +240,18 @@
             <div>
                 <h1 class="product-details-title">{{ $product->name }}</h1>
                 <span class="product-details-code">Item Code: {{ $product->item_code ?? 'N/A' }}</span>
+
+                @if ($product->unit_price !== null)
+                    <div class="product-price-row">
+                        @if ($product->hasActiveDiscount())
+                            <span class="product-price-original">Rs. {{ number_format($product->unit_price, 2) }}</span>
+                            <span class="product-price-current">Rs. {{ number_format($product->discountedPrice(), 2) }}</span>
+                            <span class="product-price-badge">{{ rtrim(rtrim(number_format($product->discount_percentage, 2, '.', ''), '0'), '.') }}% OFF</span>
+                        @else
+                            <span class="product-price-single">Rs. {{ number_format($product->unit_price, 2) }}</span>
+                        @endif
+                    </div>
+                @endif
 
                 <div class="detail-grid">
                     <div class="detail-box">

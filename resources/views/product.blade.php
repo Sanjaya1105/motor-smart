@@ -55,6 +55,33 @@
             font-weight: 800;
         }
 
+        .product-list-price {
+            display: flex;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .product-list-price-original {
+            color: #9aa3b2;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: line-through;
+        }
+
+        .product-list-price-current {
+            color: #FF823B;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
+        .product-list-price-single {
+            color: #2467FF;
+            font-size: 18px;
+            font-weight: 900;
+        }
+
         .product-card-actions {
             justify-self: end;
             align-self: center;
@@ -324,6 +351,17 @@
                     <div class="user-product-content">
                         <h2>{{ $product->name }}</h2>
                         <span class="product-code">Code: {{ $product->item_code ?? 'N/A' }}</span>
+
+                        @if ($product->unit_price !== null)
+                            <div class="product-list-price">
+                                @if ($product->hasActiveDiscount())
+                                    <span class="product-list-price-original">Rs. {{ number_format($product->unit_price, 2) }}</span>
+                                    <span class="product-list-price-current">Rs. {{ number_format($product->discountedPrice(), 2) }}</span>
+                                @else
+                                    <span class="product-list-price-single">Rs. {{ number_format($product->unit_price, 2) }}</span>
+                                @endif
+                            </div>
+                        @endif
                     </div>
 
                     <div class="product-card-actions">

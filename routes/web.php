@@ -12,6 +12,58 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
+function parseDiscountPercentage(mixed $value): ?float
+{
+    if ($value === null || trim((string) $value) === '') {
+        return null;
+    }
+
+    $numeric = preg_replace('/[^0-9.]/', '', (string) $value);
+
+    if ($numeric === '' || ! is_numeric($numeric)) {
+        return null;
+    }
+
+    return (float) $numeric;
+}
+
+function validateProductRequest(Request $request, bool $imageRequired = true): array
+{
+    $request->merge([
+        'discount_percentage' => parseDiscountPercentage($request->input('discount_percentage')),
+    ]);
+
+    $rules = [
+        'name' => ['required', 'string', 'max:255'],
+        'item_code' => ['nullable', 'string', 'max:255'],
+        'unit_price' => ['nullable', 'numeric', 'min:0'],
+        'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+        'vehicle_brand_id' => ['required', 'exists:vehcle_brands,id'],
+        'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
+        'category_product_id' => ['required', 'exists:category_products,id'],
+        'description' => ['nullable', 'string'],
+        'search_keys' => ['nullable', 'string'],
+        'image' => [$imageRequired ? 'required' : 'nullable', 'image', 'max:2048'],
+    ];
+
+    return $request->validate($rules);
+}
+
+function productAttributesFromValidated(array $validated): array
+{
+    return [
+        'name' => $validated['name'],
+        'item_code' => $validated['item_code'] ?? null,
+        'unit_price' => isset($validated['unit_price']) ? (float) $validated['unit_price'] : null,
+        'discount_percentage' => isset($validated['discount_percentage']) ? (float) $validated['discount_percentage'] : null,
+        'description' => $validated['description'] ?? null,
+        'search_keys' => $validated['search_keys'] ?? null,
+        'vehicle_brand_id' => $validated['vehicle_brand_id'],
+        'vehicle_type_id' => $validated['vehicle_type_id'],
+        'category_product_id' => $validated['category_product_id'],
+    ];
+}
+
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -546,16 +598,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/product-add', function (Request $request) {
         abort_unless(Auth::user()?->name === 'TestAdmin', 403);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'item_code' => ['nullable', 'string', 'max:255'],
-            'vehicle_brand_id' => ['required', 'exists:vehcle_brands,id'],
-            'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
-            'category_product_id' => ['required', 'exists:category_products,id'],
-            'description' => ['nullable', 'string'],
-            'search_keys' => ['nullable', 'string'],
-            'image' => ['required', 'image', 'max:2048'],
-        ]);
+        $validated = validateProductRequest($request);
 
         $imageDirectory = public_path('img/products');
 
@@ -571,16 +614,9 @@ Route::middleware('auth')->group(function () {
 
         $image->move($imageDirectory, $imageName);
 
-        Prod::create([
-            'name' => $validated['name'],
-            'item_code' => $validated['item_code'] ?? null,
+        Prod::create(array_merge(productAttributesFromValidated($validated), [
             'image_path' => 'img/products/'.$imageName,
-            'description' => $validated['description'] ?? null,
-            'search_keys' => $validated['search_keys'] ?? null,
-            'vehicle_brand_id' => $validated['vehicle_brand_id'],
-            'vehicle_type_id' => $validated['vehicle_type_id'],
-            'category_product_id' => $validated['category_product_id'],
-        ]);
+        ]));
 
         return redirect()->route('admin.products')->with('success', 'Product added successfully.');
     })->name('admin.products.store');
@@ -588,16 +624,7 @@ Route::middleware('auth')->group(function () {
     Route::put('/product-add/{product}', function (Request $request, Prod $product) {
         abort_unless(Auth::user()?->name === 'TestAdmin', 403);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'item_code' => ['nullable', 'string', 'max:255'],
-            'vehicle_brand_id' => ['required', 'exists:vehcle_brands,id'],
-            'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
-            'category_product_id' => ['required', 'exists:category_products,id'],
-            'description' => ['nullable', 'string'],
-            'search_keys' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'max:2048'],
-        ]);
+        $validated = validateProductRequest($request, imageRequired: false);
 
         $imagePath = $product->image_path;
 
@@ -622,16 +649,9 @@ Route::middleware('auth')->group(function () {
             $imagePath = 'img/products/'.$imageName;
         }
 
-        $product->update([
-            'name' => $validated['name'],
-            'item_code' => $validated['item_code'] ?? null,
+        $product->update(array_merge(productAttributesFromValidated($validated), [
             'image_path' => $imagePath,
-            'description' => $validated['description'] ?? null,
-            'search_keys' => $validated['search_keys'] ?? null,
-            'vehicle_brand_id' => $validated['vehicle_brand_id'],
-            'vehicle_type_id' => $validated['vehicle_type_id'],
-            'category_product_id' => $validated['category_product_id'],
-        ]);
+        ]));
 
         return redirect()->route('admin.products')->with('success', 'Product updated successfully.');
     })->name('admin.products.update');

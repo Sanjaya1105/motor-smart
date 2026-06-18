@@ -90,6 +90,35 @@
 
         <div class="category-select-row">
             <div>
+                <label for="unit_price" style="display: block; margin-bottom: 8px; font-weight: 700;">Unit Price</label>
+                <input
+                    type="number"
+                    id="unit_price"
+                    name="unit_price"
+                    value="{{ old('unit_price', $product->unit_price ?? '') }}"
+                    class="form-control"
+                    step="0.01"
+                    min="0"
+                    placeholder="0.00"
+                >
+            </div>
+
+            <div>
+                <label for="discount_percentage" style="display: block; margin-bottom: 8px; font-weight: 700;">Discount (%)</label>
+                <input
+                    type="text"
+                    id="discount_percentage"
+                    name="discount_percentage"
+                    value="{{ old('discount_percentage', $product->discount_percentage ?? '') }}"
+                    class="form-control"
+                    placeholder="e.g. 20 or 20%"
+                >
+                <small style="display: block; margin-top: 8px; color: #6c757d;">Enter a number or percentage (e.g. 20 or 20%).</small>
+            </div>
+        </div>
+
+        <div class="category-select-row">
+            <div>
                 <label for="category_product_id" style="display: block; margin-bottom: 8px; font-weight: 700;">Product</label>
                 <select id="category_product_id" name="category_product_id" class="form-control" required>
                     <option value="">Select product</option>
