@@ -82,43 +82,92 @@
             font-weight: 900;
         }
 
+        .product-meta-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+        }
+
+        .product-meta-tag {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: #eef3ff;
+            color: #2467FF;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .product-meta-info {
+            margin-top: 8px;
+            color: #6c757d;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
         .product-card-actions {
             justify-self: end;
             align-self: center;
             display: flex;
-            gap: 8px;
+            gap: 10px;
             flex-wrap: wrap;
             justify-content: flex-end;
         }
 
         .product-details-button,
         .product-cart-button {
-            padding: 9px 14px;
-            border: none;
-            border-radius: 999px;
-            color: #fff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 118px;
+            padding: 11px 18px;
+            border: 2px solid transparent;
+            border-radius: 12px;
             font-size: 13px;
             font-family: inherit;
             font-weight: 800;
+            letter-spacing: 0.02em;
             text-decoration: none;
             cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
         }
 
         .product-details-button {
-            background: #FF823B;
+            background: linear-gradient(135deg, #FF823B 0%, #ff9a5c 100%);
+            color: #fff;
+            box-shadow: 0 10px 22px rgba(255, 130, 59, 0.28);
+        }
+
+        .product-details-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #ff6f1a 0%, #FF823B 100%);
+            box-shadow: 0 14px 28px rgba(255, 130, 59, 0.38);
         }
 
         .product-cart-button {
-            background: #2467FF;
-        }
-
-        .product-details-button:hover,
-        .product-cart-button:hover {
-            background: #2467FF;
+            background: #fff;
+            color: #2467FF;
+            border-color: #2467FF;
+            box-shadow: 0 8px 18px rgba(36, 103, 255, 0.12);
         }
 
         .product-cart-button:hover {
-            background: #FF823B;
+            transform: translateY(-2px);
+            background: #2467FF;
+            color: #fff;
+            box-shadow: 0 14px 28px rgba(36, 103, 255, 0.28);
+        }
+
+        .product-details-button:active,
+        .product-cart-button:active {
+            transform: translateY(0);
+        }
+
+        .product-details-button:focus-visible,
+        .product-cart-button:focus-visible {
+            outline: 3px solid rgba(36, 103, 255, 0.25);
+            outline-offset: 2px;
         }
 
         .cart-modal {
@@ -306,8 +355,14 @@
             }
 
             .product-card-actions {
-                justify-self: start;
-                justify-content: flex-start;
+                justify-self: stretch;
+                width: 100%;
+            }
+
+            .product-details-button,
+            .product-cart-button {
+                flex: 1;
+                min-width: 0;
             }
 
             .product-page-search {
@@ -359,6 +414,38 @@
                                     <span class="product-list-price-current">Rs. {{ number_format($product->discountedPrice(), 2) }}</span>
                                 @else
                                     <span class="product-list-price-single">Rs. {{ number_format($product->unit_price, 2) }}</span>
+                                @endif
+                            </div>
+                        @endif
+
+                        @if ($product->categoryProduct?->name || $product->vehicleBrands()->isNotEmpty() || $product->vehicleTypes()->isNotEmpty())
+                            <div class="product-meta-tags">
+                                @if ($product->categoryProduct?->name)
+                                    <span class="product-meta-tag">{{ $product->categoryProduct->name }}</span>
+                                @endif
+
+                                @foreach ($product->vehicleBrands() as $vehicleBrand)
+                                    <span class="product-meta-tag">{{ $vehicleBrand->name }}</span>
+                                @endforeach
+
+                                @foreach ($product->vehicleTypes() as $vehicleType)
+                                    <span class="product-meta-tag">{{ $vehicleType->name }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if ($product->hasSize() || $product->formattedWeight() !== null)
+                            <div class="product-meta-info">
+                                @if ($product->hasSize())
+                                    <span>Size: {{ $product->formattedSize() }}</span>
+                                @endif
+
+                                @if ($product->hasSize() && $product->formattedWeight() !== null)
+                                    <span> | </span>
+                                @endif
+
+                                @if ($product->formattedWeight() !== null)
+                                    <span>Weight: {{ $product->formattedWeight() }}</span>
                                 @endif
                             </div>
                         @endif

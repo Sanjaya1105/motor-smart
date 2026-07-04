@@ -106,34 +106,91 @@
             color: #222;
         }
 
+        .detail-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .detail-tag {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 999px;
+            background: #eef3ff;
+            color: #2467FF;
+            font-size: 13px;
+            font-weight: 800;
+        }
+
+        .detail-tag-empty {
+            color: #6c757d;
+            font-weight: 700;
+        }
+
         .product-description {
             color: #6c757d;
             line-height: 1.7;
         }
 
-        .back-button {
-            display: inline-block;
+        .product-action-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
             margin-top: 24px;
-            padding: 12px 18px;
-            border-radius: 10px;
-            background: #FF823B;
-            color: #fff;
+        }
+
+        .back-button,
+        .cart-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 140px;
+            padding: 12px 20px;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            font: inherit;
             font-weight: 800;
+            letter-spacing: 0.02em;
             text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+        }
+
+        .back-button {
+            background: linear-gradient(135deg, #FF823B 0%, #ff9a5c 100%);
+            color: #fff;
+            box-shadow: 0 10px 22px rgba(255, 130, 59, 0.28);
+        }
+
+        .back-button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #ff6f1a 0%, #FF823B 100%);
+            box-shadow: 0 14px 28px rgba(255, 130, 59, 0.38);
         }
 
         .cart-button {
-            display: inline-block;
-            margin-top: 24px;
-            margin-right: 10px;
-            padding: 12px 18px;
-            border: none;
-            border-radius: 10px;
+            background: #fff;
+            color: #2467FF;
+            border-color: #2467FF;
+            box-shadow: 0 8px 18px rgba(36, 103, 255, 0.12);
+        }
+
+        .cart-button:hover {
+            transform: translateY(-2px);
             background: #2467FF;
             color: #fff;
-            font: inherit;
-            font-weight: 800;
-            cursor: pointer;
+            box-shadow: 0 14px 28px rgba(36, 103, 255, 0.28);
+        }
+
+        .back-button:active,
+        .cart-button:active {
+            transform: translateY(0);
+        }
+
+        .back-button:focus-visible,
+        .cart-button:focus-visible {
+            outline: 3px solid rgba(36, 103, 255, 0.25);
+            outline-offset: 2px;
         }
 
         .cart-modal {
@@ -256,18 +313,50 @@
                 <div class="detail-grid">
                     <div class="detail-box">
                         <span>Product</span>
-                        <strong>{{ $product->categoryProduct?->name ?? 'Not provided' }}</strong>
+                        <div class="detail-tags">
+                            @if ($product->categoryProduct?->name)
+                                <span class="detail-tag">{{ $product->categoryProduct->name }}</span>
+                            @else
+                                <span class="detail-tag-empty">Not provided</span>
+                            @endif
+                        </div>
                     </div>
 
                     <div class="detail-box">
                         <span>Vehicle Brand</span>
-                        <strong>{{ $product->vehicleBrand?->name ?? 'Not provided' }}</strong>
+                        <div class="detail-tags">
+                            @forelse ($product->vehicleBrands() as $vehicleBrand)
+                                <span class="detail-tag">{{ $vehicleBrand->name }}</span>
+                            @empty
+                                <span class="detail-tag-empty">Not provided</span>
+                            @endforelse
+                        </div>
                     </div>
 
                     <div class="detail-box">
                         <span>Vehicle Type</span>
-                        <strong>{{ $product->vehicleType?->name ?? 'Not provided' }}</strong>
+                        <div class="detail-tags">
+                            @forelse ($product->vehicleTypes() as $vehicleType)
+                                <span class="detail-tag">{{ $vehicleType->name }}</span>
+                            @empty
+                                <span class="detail-tag-empty">Not provided</span>
+                            @endforelse
+                        </div>
                     </div>
+
+                    @if ($product->hasSize())
+                        <div class="detail-box">
+                            <span>Size</span>
+                            <strong>{{ $product->formattedSize() }}</strong>
+                        </div>
+                    @endif
+
+                    @if ($product->formattedWeight() !== null)
+                        <div class="detail-box">
+                            <span>Weight</span>
+                            <strong>{{ $product->formattedWeight() }}</strong>
+                        </div>
+                    @endif
                 </div>
 
                 <h2>Description</h2>
@@ -275,8 +364,10 @@
                     {{ $product->description ?: 'Contact us for more details and wholesale availability.' }}
                 </p>
 
-                <button type="button" class="cart-button" id="open-cart-modal">Add to Cart</button>
-                <a href="{{ route('product') }}" class="back-button">Back to Products</a>
+                <div class="product-action-row">
+                    <button type="button" class="cart-button" id="open-cart-modal">Add to Cart</button>
+                    <a href="{{ route('product') }}" class="back-button">Back to Products</a>
+                </div>
             </div>
         </section>
 

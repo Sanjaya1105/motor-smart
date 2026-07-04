@@ -27,8 +27,32 @@ function parseDiscountPercentage(mixed $value): ?float
     return (float) $numeric;
 }
 
+function normalizeIdList(Request $request, string $key): void
+{
+    $ids = collect($request->input($key, []))
+        ->filter(fn ($id) => $id !== null && $id !== '')
+        ->unique()
+        ->values()
+        ->all();
+
+    $request->merge([$key => $ids]);
+}
+
+function normalizeVehicleBrandIds(Request $request): void
+{
+    normalizeIdList($request, 'vehicle_brand_ids');
+}
+
+function normalizeVehicleTypeIds(Request $request): void
+{
+    normalizeIdList($request, 'vehicle_type_ids');
+}
+
 function validateProductRequest(Request $request, bool $imageRequired = true): array
 {
+    normalizeVehicleBrandIds($request);
+    normalizeVehicleTypeIds($request);
+
     $request->merge([
         'discount_percentage' => parseDiscountPercentage($request->input('discount_percentage')),
     ]);
@@ -38,8 +62,14 @@ function validateProductRequest(Request $request, bool $imageRequired = true): a
         'item_code' => ['nullable', 'string', 'max:255'],
         'unit_price' => ['nullable', 'numeric', 'min:0'],
         'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
-        'vehicle_brand_id' => ['required', 'exists:vehcle_brands,id'],
-        'vehicle_type_id' => ['required', 'exists:vehicle_types,id'],
+        'height' => ['nullable', 'numeric', 'min:0'],
+        'width' => ['nullable', 'numeric', 'min:0'],
+        'length' => ['nullable', 'numeric', 'min:0'],
+        'weight' => ['nullable', 'numeric', 'min:0'],
+        'vehicle_brand_ids' => ['required', 'array', 'min:1'],
+        'vehicle_brand_ids.*' => ['required', 'exists:vehcle_brands,id'],
+        'vehicle_type_ids' => ['required', 'array', 'min:1'],
+        'vehicle_type_ids.*' => ['required', 'exists:vehicle_types,id'],
         'category_product_id' => ['required', 'exists:category_products,id'],
         'description' => ['nullable', 'string'],
         'search_keys' => ['nullable', 'string'],
@@ -56,10 +86,14 @@ function productAttributesFromValidated(array $validated): array
         'item_code' => $validated['item_code'] ?? null,
         'unit_price' => isset($validated['unit_price']) ? (float) $validated['unit_price'] : null,
         'discount_percentage' => isset($validated['discount_percentage']) ? (float) $validated['discount_percentage'] : null,
+        'height' => isset($validated['height']) ? (float) $validated['height'] : null,
+        'width' => isset($validated['width']) ? (float) $validated['width'] : null,
+        'length' => isset($validated['length']) ? (float) $validated['length'] : null,
+        'weight' => isset($validated['weight']) ? (float) $validated['weight'] : null,
         'description' => $validated['description'] ?? null,
         'search_keys' => $validated['search_keys'] ?? null,
-        'vehicle_brand_id' => $validated['vehicle_brand_id'],
-        'vehicle_type_id' => $validated['vehicle_type_id'],
+        'vehicle_brand_id' => implode(',', $validated['vehicle_brand_ids']),
+        'vehicle_type_id' => implode(',', $validated['vehicle_type_ids']),
         'category_product_id' => $validated['category_product_id'],
     ];
 }
@@ -109,13 +143,8 @@ Route::middleware('auth')->group(function () {
         $perPage = 10;
 
         if ($search !== '') {
-            $products = Prod::with(['vehicleBrand', 'vehicleType', 'categoryProduct'])
-                ->where(function ($query) use ($search) {
-                    $query
-                        ->where('name', 'like', "%{$search}%")
-                        ->orWhere('item_code', 'like', "%{$search}%")
-                        ->orWhere('search_keys', 'like', "%{$search}%");
-                })
+            $products = Prod::with(['categoryProduct'])
+                ->matchingSearch($search)
                 ->latest()
                 ->paginate($perPage)
                 ->withQueryString();
@@ -128,7 +157,7 @@ Route::middleware('auth')->group(function () {
             }
 
             $randomProductIds = $request->session()->get('product_random_ids', []);
-            $randomProducts = Prod::with(['vehicleBrand', 'vehicleType', 'categoryProduct'])
+            $randomProducts = Prod::with(['categoryProduct'])
                 ->whereIn('id', $randomProductIds)
                 ->get()
                 ->sortBy(fn ($product) => array_search($product->id, $randomProductIds, true))
@@ -154,7 +183,7 @@ Route::middleware('auth')->group(function () {
     })->name('product');
 
     Route::get('/product/{product}', function (Prod $product) {
-        $product->load(['vehicleBrand', 'vehicleType', 'categoryProduct']);
+        $product->load(['categoryProduct']);
 
         return view('product-details', ['product' => $product]);
     })->name('product.details');
@@ -199,12 +228,7 @@ Route::middleware('auth')->group(function () {
         }
 
         $products = Prod::query()
-            ->where(function ($query) use ($search) {
-                $query
-                    ->where('name', 'like', "%{$search}%")
-                    ->orWhere('item_code', 'like', "%{$search}%")
-                    ->orWhere('search_keys', 'like', "%{$search}%");
-            })
+            ->matchingSearch($search)
             ->latest()
             ->limit(10)
             ->get(['id', 'name', 'item_code', 'image_path'])
